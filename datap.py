@@ -23,11 +23,11 @@ def mouse_track(y, color=RED):
     """
     uses array of pixels of the plot surface to paint current position.
     updates the array by shifting first half pixels to 1 pixel before.
-    as shown below:
+    px(t) := px(t-1), as shown below:
 
-    -++--        ++---
-    -++--   :=   ++---
-    -++--        ++---
+    ++---        -++--
+    ++---   :=   -++--
+    ++---        -++--
 
     """
     X = RES[0]
@@ -42,7 +42,7 @@ def mouse_track(y, color=RED):
     pixels[:X // 2, :] = pixels[1:X // 2 + 1, :]
 
     # reset the mid ones so they don't keep appearing
-    pixels[X //2 ,:] = 0
+    pixels[X // 2, :] = 0
 
     # unlocks surface
     del pixels
