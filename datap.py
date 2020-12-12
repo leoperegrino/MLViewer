@@ -1,48 +1,46 @@
 #!/bin/python
 import pygame
+import numpy as np
+import sys
 from pygame.surfarray import pixels2d
 from pygame.locals import *
-import sys
-
-# constants
-RES = (600, 600)
-BLACK = pygame.Color(0,0,0)
-GREEN = pygame.Color(0,255,0)
-RED = pygame.Color(255,0,0)
+from pygame.colordict import THECOLORS as COLOR
+from sklearn.linear_model import LinearRegression
 
 pygame.init()
-
-DISPLAY = pygame.display.set_mode(RES)
-CLOCK = pygame.time.Clock()
-FONT = pygame.font.SysFont(None, 32)
-PLOT = pygame.Surface(RES)
-
 pygame.mouse.set_visible(False)
 
-def mouse_track(y, color=RED):
+# constants
+RES_X = 600
+RES_Y = 600
+RES = (RES_X, RES_Y)
+DISPLAY = pygame.display.set_mode(RES)
+PLOT = pygame.Surface(RES)
+CLOCK = pygame.time.Clock()
+FONT = pygame.font.SysFont(None, 32)
+
+def mouse_track(y, color=COLOR['red']):
     """
-    uses array of pixels of the plot surface to paint current position.
+    uses array of pixels of the plot surface to paint current height position.
     updates the array by shifting first half pixels to 1 pixel before.
-    px(t) := px(t-1), as shown below:
+    px(t, x-1) := px(t-1, x), as shown below:
 
     ++---        -++--
     ++---   :=   -++--
     ++---        -++--
 
     """
-    X = RES[0]
-
     # reference plot surface pixels. locks the surface
     pixels = pixels2d(PLOT)
 
     # use mouse height to paint a pixel at middle
-    pixels[X // 2, y] = PLOT.map_rgb(color)
+    pixels[RES_X // 2, y] = PLOT.map_rgb(color)
 
     # set pixels equals to next one, provides time feeling
-    pixels[:X // 2, :] = pixels[1:X // 2 + 1, :]
+    pixels[:RES_X // 2, :] = pixels[1:RES_X // 2 + 1, :]
 
     # reset the mid ones so they don't keep appearing
-    pixels[X // 2, :] = 0
+    pixels[RES_X // 2, :] = 0
 
     # unlocks surface
     del pixels
@@ -60,23 +58,60 @@ def print_coord(x, y, x_loc=(100,100), y_loc=(100,150)):
     y_str = 'h = ' + str(y)
 
     # render the string with font obj:
-    xText = FONT.render(x_str, True, GREEN)
-    yText = FONT.render(y_str, True, GREEN)
+    xText = FONT.render(x_str, True, COLOR['green'])
+    yText = FONT.render(y_str, True, COLOR['green'])
 
     # display text onto bg:
     DISPLAY.blit(xText, x_loc)
     DISPLAY.blit(yText, y_loc)
 
+class LinearDisplay():
+    def __init__(self, size=RES_X // 2):
+       self.size = size
+       self.X = np.arange(size).reshape(-1, 1)
+       self.Y = np.full(size, size).reshape(-1, 1)
+       self.model = LinearRegression()
+
+    def append(self, value):
+        self.Y[:self.size - 1, 0] = self.Y[1:self.size + 1, 0]
+        self.Y[self.size - 1, 0] = value
+
+    def _fit(self):
+        self.model.fit(self.X, self.Y)
+
+    def _predict(self):
+        self.data = self.model.predict(self.X + self.size)
+
+    def show(self):
+        self._fit()
+        self._predict()
+        pixels = pixels2d(PLOT)
+        pixels[self.size:, :] = PLOT.map_rgb(COLOR['black'])
+        i = self.size
+        for px in self.data:
+            if px >= RES_Y: px = RES_Y - 1
+            if px <= 0: px = 0
+            pixels[i, int(px)] = PLOT.map_rgb(COLOR['yellow'])
+            i+=1
+        del pixels
+
+linear = LinearDisplay()
+RUNNING = True
+
 # main game loop
 while True:
-    DISPLAY.fill(BLACK)
+    if RUNNING:
+        DISPLAY.fill(COLOR['black'])
 
-    x, y = pygame.mouse.get_pos()
+        x, y = pygame.mouse.get_pos()
 
-    mouse_track(y)
-    print_coord(x, y)
+        mouse_track(y)
+        print_coord(x, y)
 
-    pygame.draw.circle(DISPLAY, GREEN, (x,y), 10)
+        linear.append(y)
+        linear.show()
+
+        pygame.draw.circle(DISPLAY, COLOR['green'], (x,y), 10)
 
     # events
     for event in pygame.event.get():
@@ -87,8 +122,12 @@ while True:
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 pygame.event.post(pygame.event.Event(QUIT))
-
+            if event.key == K_SPACE:
+                if RUNNING:
+                    RUNNING = False
+                else:
+                    RUNNING = True
     # redraw screen
     pygame.display.update()
     # loop at 60fps
-    CLOCK.tick(60)
+    CLOCK.tick(600)
