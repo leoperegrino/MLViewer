@@ -87,12 +87,10 @@ class LinearDisplay():
         self._predict()
         pixels = pixels2d(PLOT)
         pixels[self.size:, :] = PLOT.map_rgb(COLOR['black'])
-        i = self.size
-        for px in self.data:
+        for i, px in enumerate(self.data):
             if px >= RES_Y: px = RES_Y - 1
             if px <= 0: px = 0
-            pixels[i, int(px)] = PLOT.map_rgb(COLOR['yellow'])
-            i+=1
+            pixels[i + self.size, int(px)] = PLOT.map_rgb(COLOR['yellow'])
         del pixels
 
 linear = LinearDisplay()
@@ -111,7 +109,7 @@ while True:
         linear.append(y)
         linear.show()
 
-        pygame.draw.circle(DISPLAY, COLOR['green'], (x,y), 10)
+        pygame.draw.circle(DISPLAY, COLOR['green'], (x,y), radius=10)
 
     # events
     for event in pygame.event.get():
@@ -130,4 +128,4 @@ while True:
     # redraw screen
     pygame.display.update()
     # loop at 60fps
-    CLOCK.tick(600)
+    CLOCK.tick(60)
