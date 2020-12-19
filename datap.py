@@ -39,9 +39,6 @@ def mouse_track(y, color=COLOR['red']):
     # set pixels equals to next one, provides time feeling
     pixels[:RES_X // 2, :] = pixels[1:RES_X // 2 + 1, :]
 
-    # reset the mid ones so they don't keep appearing
-    pixels[RES_X // 2, :] = 0
-
     # unlocks surface
     del pixels
 
