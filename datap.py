@@ -45,6 +45,7 @@ def mouse_track(y, color=COLOR['red']):
     # blit the surface onto display
     DISPLAY.blit(PLOT, (0,0))
 
+
 def print_coord(x, y, x_loc=(100,100), y_loc=(100,150)):
     """
     x, y: coordinates to render over display
@@ -62,7 +63,11 @@ def print_coord(x, y, x_loc=(100,100), y_loc=(100,150)):
     DISPLAY.blit(xText, x_loc)
     DISPLAY.blit(yText, y_loc)
 
+
 class LinearDisplay():
+    """
+    Linear Regression of the last RES_X // 2 mouse heights.
+    """
     def __init__(self, size=RES_X // 2):
        self.size = size
        self.X = np.arange(size).reshape(-1, 1)
@@ -89,6 +94,7 @@ class LinearDisplay():
             if px <= 0: px = 0
             pixels[i + self.size, int(px)] = PLOT.map_rgb(COLOR['yellow'])
         del pixels
+
 
 linear = LinearDisplay()
 RUNNING = True
