@@ -1,4 +1,5 @@
 #!/bin/python
+import Models
 import pygame
 import numpy as np
 import sys
@@ -66,39 +67,7 @@ def main():
         DISPLAY.blit(yText, y_loc)
 
 
-    class LinearDisplay():
-        """
-        Linear Regression of the last RES_X // 2 mouse heights.
-        """
-        def __init__(self, size=RES_X // 2):
-           self.size = size
-           self.X = np.arange(size).reshape(-1, 1)
-           self.Y = np.full(size, size).reshape(-1, 1)
-           self.model = LinearRegression()
-
-        def append(self, value):
-            self.Y[:self.size - 1, 0] = self.Y[1:self.size + 1, 0]
-            self.Y[self.size - 1, 0] = value
-
-        def _fit(self):
-            self.model.fit(self.X, self.Y)
-
-        def _predict(self):
-            self.data = self.model.predict(self.X + self.size)
-
-        def show(self):
-            self._fit()
-            self._predict()
-            pixels = pixels2d(PLOT)
-            pixels[self.size:, :] = PLOT.map_rgb(COLOR['black'])
-            for i, px in enumerate(self.data):
-                if px >= RES_Y: px = RES_Y - 1
-                if px <= 0: px = 0
-                pixels[i + self.size, int(px)] = PLOT.map_rgb(COLOR['yellow'])
-            del pixels
-
-
-    linear = LinearDisplay()
+    linear = Models.Linear(PLOT)
     RUNNING = True
 
     # main game loop
