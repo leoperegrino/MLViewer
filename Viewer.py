@@ -19,14 +19,15 @@ def main():
     DISPLAY = pygame.display.set_mode(RES)
     PLOT = pygame.Surface(RES)
     CLOCK = pygame.time.Clock()
-    FONT = pygame.font.SysFont(None, 32)
+    FONT = pygame.font.SysFont(None, 26)
 
 
     def mouse_track(y, color=COLOR['red']):
         """
         uses array of pixels of the plot surface to paint current height position.
         updates the array by shifting first half pixels to 1 pixel before.
-        px(t, x-1) := px(t-1, x), as shown below:
+
+        px(t, x-1) := px(t-1, x)
 
         ++---        -++--
         ++---   :=   -++--
@@ -67,7 +68,6 @@ def main():
     # main game loop
     while True:
         if RUNNING:
-            DISPLAY.fill(COLOR['black'])
 
             x, y = pygame.mouse.get_pos()
 
@@ -100,7 +100,7 @@ def main():
                         RUNNING = True
         # redraw screen
         pygame.display.update()
-        # loop at 60fps
+        # loop at tick fps
         CLOCK.tick(60)
 
 if __name__ == "__main__":
