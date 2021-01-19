@@ -49,3 +49,10 @@ class Linear(Model):
     """
     def __init__(self, bg):
        super().__init__(bg, LinearRegression())
+
+    def stats(self):
+        self.stats_ = {}
+        self.stats_['Coefficient'] = float(self.model.coef_)
+        self.stats_['Intercept'] = float(self.model.intercept_)
+        self.stats_['Score'] = float(self.model.score(self.X, self.Y))
+        return self.stats_
