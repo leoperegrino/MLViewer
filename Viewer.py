@@ -49,22 +49,16 @@ def main():
         DISPLAY.blit(PLOT, (0,0))
 
 
-    def print_coord(x, y, x_loc=(100,100), y_loc=(100,150)):
+    def print_stats(stats, position):
         """
-        x, y: coordinates to render over display
-        x_loc, y_loc: where to render the text over the display
+        stats: model stats
+        position: top left corner of stats
         """
-        # string to be displyed:
-        x_str = 'w = ' + str(x)
-        y_str = 'h = ' + str(y)
-
-        # render the string with font obj:
-        xText = FONT.render(x_str, True, COLOR['green'])
-        yText = FONT.render(y_str, True, COLOR['green'])
-
-        # display text onto bg:
-        DISPLAY.blit(xText, x_loc)
-        DISPLAY.blit(yText, y_loc)
+        for key, val in stats.items():
+            stat_str = f'{key} = {str(val)[:6]}'
+            stat_text = FONT.render(stat_str, True, COLOR['green'])
+            DISPLAY.blit(stat_text, position)
+            position[1] += 20
 
 
     linear = Models.Linear(PLOT)
@@ -77,11 +71,15 @@ def main():
 
             x, y = pygame.mouse.get_pos()
 
-            mouse_track(y)
-            print_coord(x, y)
-
             linear.append(y)
             linear.show()
+
+            stats = linear.stats()
+            stats['x'] = x
+            stats['y'] = y
+
+            mouse_track(y)
+            print_stats(stats, [50,50])
 
             pygame.draw.circle(DISPLAY, COLOR['green'], (x,y), radius=10)
 
